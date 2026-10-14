@@ -4,3 +4,6 @@
 .data-protection-field { display: block; color: var(--label-2); font-size: 13px; margin: 16px 0; }
 .data-protection-field .field { display: block; width: 100%; margin-top: 7px; }
 .data-protection-notice { padding: 0 14px; line-height: 1.65; }
+.data-auth-feedback { margin-bottom: 16px; padding: 16px; font-size: 14px; line-height: 1.65; color: var(--label); border-left: 4px solid var(--blue); }
+.data-auth-feedback.error { border-left-color: var(--red); }
+.data-auth-feedback.success { border-left-color: var(--green); }

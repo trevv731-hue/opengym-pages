@@ -1,0 +1,2 @@
+[functions.gym-register]
+verify_jwt = true

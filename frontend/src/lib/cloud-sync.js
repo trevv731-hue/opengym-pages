@@ -3,6 +3,7 @@ import { hasPersonalData, saveRecoveryCopy } from './data-safety.js'
 import { referencedFiles, MEDIA_MIMES } from './media-refs.js'
 import { mediaStore } from './media-store.js'
 import { sha256Hex } from './sha256.js'
+import { authMessage, registerRequest, recoveryProof } from './cloud-auth.js'
 
 const OWNER = 'gym_cloud_owner'
 const MARK = 'gym_cloud_last_sync'
@@ -38,7 +39,7 @@ async function loadConfig() {
     try { role = JSON.parse(atob(key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).role } catch { /* invalid key */ }
     if (role !== 'anon') throw Error('云端配置只能使用公开访问密钥。')
   }
-  return { url: url.origin, publishableKey: key }
+  return { url: url.origin, publishableKey: key, registrationKey: cfg.registrationKey || (key.startsWith('ey') ? key : '') }
 }
 function acceptSession(session, event) {
   const user = session?.user || null
@@ -117,6 +118,8 @@ export async function startCloudSync(appStore) {
   return starting
 }
 export function cloudError(error) {
+  const known = authMessage(error)
+  if (known) return known
   const text = error?.message || String(error)
   if (/email address.*not authorized|email.*not.*allowed|error sending.*email|error sending.*mail/i.test(text)) return '注册邮件暂时无法发送。个人使用请先用 Supabase 组织成员邮箱；其他邮箱需要配置发信服务。'
   if (/Invalid login credentials/i.test(text)) return '邮箱或密码不正确。'
@@ -127,15 +130,28 @@ export function cloudError(error) {
   return text.slice(0, 220)
 }
 export async function signInCloud(email, password) {
-  const { data, error } = await requireClient().auth.signInWithPassword({ email: email.trim(), password })
-  if (error) throw error
-  acceptSession(data.session)
+  let result = await requireClient().auth.signInWithPassword({ email: email.trim(), password })
+  if (result.error?.code === 'email_not_confirmed') {
+    await registerRequest(config, 'activate', email, password)
+    result = await client.auth.signInWithPassword({ email: email.trim(), password })
+  }
+  if (result.error) throw result.error
+  if (!result.data.session?.user?.id) throw Error('登录尚未完成，请重试。')
+  acceptSession(result.data.session)
 }
 export async function signUpCloud(email, password) {
-  const { data, error } = await requireClient().auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: currentRedirect() } })
+  requireClient()
+  await registerRequest(config, 'register', email, password)
+  try { await signInCloud(email, password) }
+  catch { throw Object.assign(Error('账号已创建，自动登录未完成。'), { code: 'created_login_failed' }) }
+  return true
+}
+export async function verifyRecoveryCloud(value, email) {
+  const proof = recoveryProof(value, config.url, email)
+  const { data, error } = await requireClient().auth.verifyOtp(proof)
   if (error) throw error
-  if (data.session) acceptSession(data.session)
-  return !!data.session
+  if (!data.session?.user?.id) throw Error('邮箱验证尚未完成，请重试。')
+  acceptSession(data.session, 'PASSWORD_RECOVERY')
 }
 export async function resetCloudPassword(email) {
   const { error } = await requireClient().auth.resetPasswordForEmail(email.trim(), { redirectTo: currentRedirect() })

@@ -8,3 +8,4 @@ upstream-tree.json
 *.zip
 .env
 data/
+supabase/.temp/
