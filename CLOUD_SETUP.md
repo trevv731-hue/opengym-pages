@@ -8,8 +8,8 @@
 
 Supabase 连接器没有修改 Auth URL / SMTP 设置的工具，因此这两项尚未自动配置：
 
-1. 在 https://supabase.com/dashboard/project/yqavstbwzvtzkjidnxvh/auth/url-configuration 设置 Site URL 为实际使用的网站根地址，例如 `https://trevv731-hue.github.io/opengym-pages/`。
-2. Redirect URLs 加入 `https://trevv731-hue.github.io/opengym-pages/**`。如以后继续使用 Netlify，再加入 `https://tvgym.netlify.app/**`。本地测试可加入 `http://127.0.0.1:8765/opengym-pages/**`。
+1. 在 https://supabase.com/dashboard/project/yqavstbwzvtzkjidnxvh/auth/url-configuration 设置 Site URL 为 `https://tvgym.pages.dev/`。
+2. Redirect URLs 加入 `https://tvgym.pages.dev/**` 和 `https://trevv731-hue.github.io/opengym-pages/**`。如以后继续使用 Netlify，再加入 `https://tvgym.netlify.app/**`。本地测试可加入 `http://127.0.0.1:8765/opengym-pages/**`。
 3. 默认发信服务只允许组织成员邮箱。个人使用先用组织成员邮箱；要给其他邮箱注册或找回密码，需自行配置 SMTP 发信服务。未配置时，网页会提示发信失败，不会假称注册成功。
 
 上述限制来自官方文档：[返回地址](https://supabase.com/docs/guides/auth/redirect-urls)、[默认发信限制](https://supabase.com/docs/guides/auth/auth-smtp)。
@@ -31,3 +31,11 @@ Supabase 连接器没有修改 Auth URL / SMTP 设置的工具，因此这两项
 数据库权限验证：匿名不可读写训练表，客户端不能直接更新表，媒体桶非公开。安全检查对允许登录用户执行 SECURITY DEFINER 写入函数给出提示；这是有意的受控入口，函数固定使用 auth.uid()，固定空 search_path，拒绝匿名并检查文档和版本。隔离及冲突行为另经真实 PostgreSQL 引擎测试。
 
 管理密码单独存于本机 `LocalAppData/openGym-private/supabase-db-password.dpapi`，用当前 Windows 用户加密，未进入仓库和网站。
+
+## Cloudflare 托管
+
+已在用户 Cloudflare 账号创建 `tvgym` Pages 项目，生产地址 https://tvgym.pages.dev/ 。上传并发布完整网站和动作媒体，共 13,233 个文件，生产部署 `776f51ff-1664-4659-9c2b-8ca0642cf344`。纯静态部署，没有 Pages Functions、付费存储或付费方案升级。
+
+源码在原 GitHub 仓库，Cloudflare 当前通过直接上传发布，不会自动跟随 GitHub 提交更新。已登录 Wrangler 时，可使用 `wrangler pages deploy docs --project-name tvgym --branch main` 发布已构建的版本。该项目内集中管理健身网站的部署；无需另买域名。
+
+文件数量与单文件大小满足 [Pages 免费方案限制](https://developers.cloudflare.com/pages/platform/limits/)。国内访问速度需由用户实际网络测试，不承诺即时打开。

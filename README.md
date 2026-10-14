@@ -1,12 +1,16 @@
 # openGym 个人网页版
 
-网站：https://trevv731-hue.github.io/opengym-pages/
+Cloudflare 网站：https://tvgym.pages.dev/
+
+GitHub Pages：https://trevv731-hue.github.io/opengym-pages/
 
 基于 [DuarteSantos8/openGym v1.4.0](https://github.com/DuarteSantos8/openGym/tree/v1.4.0)，保留原作者版权、AGPL-3.0-or-later 许可和第三方声明。
 
 这是个人、非商业的 openGym 分支。首次启动为空白记录，第一屏默认简体中文。未登录时，记录保存在当前浏览器的 localStorage / IndexedDB，并保存本机恢复副本；登录后，记录和个人媒体同步到用户自己的 Supabase 账号，不上传 GitHub。示例 AI 和后台推送仍禁用。
 
 已连接用户创建的免费数据库。注册邮件返回地址和默认发信限制，以及完整的数据保护说明，见 [CLOUD_SETUP.md](CLOUD_SETUP.md)。
+
+两个托管地址使用同一个云端数据库；同一账号登录后可同步。浏览器本机数据按网址隔离，从原 Netlify 地址迁移时先导出 JSON 或带媒体的 ZIP，再在新版导入。Cloudflare 当前采用直接上传，未来代码更新需要重新发布，尚未设置自动部署。
 
 ## iPhone 使用
 
