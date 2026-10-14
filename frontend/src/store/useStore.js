@@ -245,6 +245,7 @@ const clone = o => JSON.parse(JSON.stringify(o))
 // pre-paint direction. The choice is persisted like any other setting once the user
 // picks a language.
 const detectedLang = () => {
+  if (LOCAL_PAGES) return 'zh'
   try {
     const base = (navigator.language || '').toLowerCase().split('-')[0]
     if (RTL_LANGS.has(base)) return base
@@ -1465,6 +1466,9 @@ export const useStore = create((set, get) => {
       if (push) { if (baseRev != null) replaceRev = { rev: baseRev, wid: baseWid }; else forceNext = true }
       persist(keepReset(get().S, clone(S)), push)
     },
+    // A checked cloud revision is adopted without fabricating a new edit stamp.
+    // Otherwise every pull would itself become a newer edit and sync forever.
+    applyCloudState(S) { persist(keepReset(get().S, clone(S)), false, false) },
 
     // Fires after the moments where losing local data would actually hurt — a workout just
     // logged, a routine just edited — not on every keystroke. No-op off mobile or with the

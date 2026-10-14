@@ -39,6 +39,8 @@ import Icon from '../components/Icon.jsx'
 import { durationSheet } from '../components/DurationWheel.jsx'
 import { showsConnection, showsLocalLine } from '../components/SyncBanner.jsx'
 import BackupFolderRow, { useBackupFolder, autoBackupSubtitle } from '../components/BackupFolderRow.jsx'
+import { CloudAccountSection, LocalProtectionSection, useCloudStatus, cloudLabel } from '../components/DataProtection.jsx'
+import { saveBackupFile, markExternalExport } from '../lib/data-safety.js'
 import { ServerSyncSection, KeptChangesRows, leaveServer, connectServer, passkeySignIn } from '../components/ServerSync.jsx'
 import { passwordOn, PasswordRow, openPasswordSignIn, openPasswordRegister } from '../components/PasswordAuth.jsx'
 import { usePasskeys, PasskeysRow, DeviceLinkRow, openDeviceLinkRedeem } from '../components/Passkeys.jsx'
@@ -79,6 +81,7 @@ const standalone = () => {
 }
 
 export default function Settings({ page = null, find = null, via = null }) {
+  const cloud = useCloudStatus()
   const nav = useNavigate()
   const S = useStore(s => s.S)
   const user = useStore(s => s.user)
@@ -263,11 +266,11 @@ export default function Settings({ page = null, find = null, via = null }) {
     const name = 'opengym-backup-' + todayISO() + '.json'
     // WKWebView can't download blob URLs — the native build hands the file to the share sheet.
     if (MOBILE) {
-      try { await shareExport(json, name); toast(t('Backup exported')) } catch (e) { /* share sheet dismissed */ }
+      try { await shareExport(json, name); markExternalExport(); toast(t('Backup exported')) } catch (e) { /* share sheet dismissed */ }
       return
     }
     const blob = new Blob([json], { type: 'application/json' })
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href)
+    try { await saveBackupFile(blob, name) } catch (e) { if (e.name !== 'AbortError') toast('备份导出失败，请重试。'); return }
     toast(t('Backup exported'))
   }
   // "Export with photos & videos": the same JSON plus every file the state refers to, in a zip
@@ -283,11 +286,10 @@ export default function Settings({ page = null, find = null, via = null }) {
     const name = 'opengym-backup-' + todayISO() + '.zip'
     if (out.missing) toast(tn('{0} file could not be included', '{0} files could not be included', out.missing))
     if (MOBILE) {
-      try { await shareExportBlob(out.blob, name); if (!out.missing) toast(t('Backup exported')) } catch (e) { /* share sheet dismissed */ }
+      try { await shareExportBlob(out.blob, name); if (!out.missing) { markExternalExport(); toast(t('Backup exported')) } } catch (e) { /* share sheet dismissed */ }
       return
     }
-    const a = document.createElement('a'); a.href = URL.createObjectURL(out.blob); a.download = name; a.click()
-    setTimeout(() => URL.revokeObjectURL(a.href), 60000)
+    try { await saveBackupFile(out.blob, name, !out.missing) } catch (e) { if (e.name !== 'AbortError') toast('备份导出失败，请重试。'); return }
     if (!out.missing) toast(t('Backup exported'))
   }
   // Import takes the JSON backup and the zip alike, told apart by their first bytes. A zip's
@@ -335,7 +337,7 @@ export default function Settings({ page = null, find = null, via = null }) {
       return
     }
     confirmSheet({
-      title: t('Import backup?'), message: t('This replaces all current data with the backup file.'), confirmText: t('Import'), danger: true,
+      title: t('Import backup?'), message: cloud.user ? '恢复备份会替换当前记录，并同步到已登录的账号。请先导出当前记录。' : t('This replaces all current data with the backup file.'), confirmText: t('Import'), danger: true,
       onConfirm: () => apply(null)
     })
   }
@@ -379,7 +381,7 @@ export default function Settings({ page = null, find = null, via = null }) {
   // not stop the reset.
   const resetEverything = () => confirmSheet({
     title: t('Reset everything?'),
-    message: user
+    message: cloud.user ? '删除记录后，会同步到当前账号和其他设备。此操作不能撤销，请先导出备份。' : user
       ? t('Deletes your plan, workouts, body weight, photos and videos from your profile on this server and on every signed-in device. This cannot be undone.')
       : t('Deletes your plan, workouts, body weight, photos and videos on this device. This cannot be undone.'),
     confirmText: t('Delete everything'), danger: true,
@@ -777,6 +779,7 @@ export default function Settings({ page = null, find = null, via = null }) {
     </>,
 
     data: () => <>
+      {LOCAL_PAGES && <LocalProtectionSection />}
       <Section title={t('Back up')}>
         <Row icon="share" iconTint="var(--blue)" title={t('Export backup (JSON)')} subtitle={hasMedia ? t('Without photos and videos') : undefined} accessory="chevron" onClick={doExport} />
         {hasMedia && <Row icon="share" iconTint="var(--blue)" title={t('Export with photos & videos (.zip)')} accessory="chevron" onClick={doExportZip} />}
@@ -843,7 +846,7 @@ export default function Settings({ page = null, find = null, via = null }) {
       </div>
     </>,
 
-    account: () => <>
+    account: () => LOCAL_PAGES ? <CloudAccountSection /> : <>
       {/* The server: which one, which account, how that stands, "Sync now". A paired phone's
           Admin and Disconnect sit in the same block; a browser's account rows follow in their own. */}
       {user && !DEMO && <ServerSyncSection>
@@ -932,13 +935,14 @@ export default function Settings({ page = null, find = null, via = null }) {
 }
 
 function SettingsRoot({ ctx, preview, open, user, sync, home, go }) {
+  const cloud = useCloudStatus()
   // The router's key for this history entry (what useLocation().key reads), taken once.
   const [key] = useState(() => window.history.state?.key || null)
   const [q, setQ] = useState(() => (key && lastQuery.key === key ? lastQuery.q : ''))
   const set = v => { lastQuery = { q: v, key }; setQ(v) }
   const hits = q.trim() ? searchSettings(q, ctx) : null
   // The account card: who this is, and the one line that matters about it.
-  const acct = LOCAL_PAGES ? { title: '本地记录', sub: '无需账号 · 数据保存在这台设备' }
+  const acct = LOCAL_PAGES ? { title: cloud.user ? '账号与同步' : '账号与数据保护', sub: cloudLabel(cloud) }
     : DEMO ? { title: t('Demo'), sub: t('Example data, only in this browser.') }
     : user ? {
       title: user.name || t('Account'),
@@ -1358,6 +1362,7 @@ async function clearMediaAfterReset(signedIn) {
    stores media, it says they are kept here only. */
 function MediaRow() {
   const S = useStore(s => s.S)
+  const cloud = useCloudStatus()
   const user = useStore(s => s.user)
   const config = useStore(s => s.config)
   const status = useSyncExternalStore(subscribeMediaStatus, getMediaStatus)
@@ -1372,7 +1377,7 @@ function MediaRow() {
   const usage = remote && u && u.quotaBytes > 0
     ? t('{0} of {1} MB used on your server', fmtMB((u.bytes || 0) / MB), fmtMB(Math.round(u.quotaBytes / MB)))
     : null
-  const sub = remote
+  const sub = LOCAL_PAGES ? cloud.user ? `${cloudLabel(cloud)}。个人照片视频随账号同步；建议另外导出带媒体的备份。` : '照片视频保存在本机；登录后随账号同步。带媒体的 ZIP 备份可保存完整副本。' : remote
     ? [usage, pending ? t('{0} waiting to upload', pending) : null].filter(Boolean).join(' · ') || undefined
     : t('Kept on this device only. Export with photos & videos keeps a copy.')
   return <Row icon="image" iconTint="var(--teal)" title={t('Photos & videos')} subtitle={sub}

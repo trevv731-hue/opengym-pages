@@ -4,7 +4,7 @@
 
 基于 [DuarteSantos8/openGym v1.4.0](https://github.com/DuarteSantos8/openGym/tree/v1.4.0)，保留原作者版权、AGPL-3.0-or-later 许可和第三方声明。
 
-这是个人、非商业的 openGym 分支。训练记录、计划、体重、围度和照片保存在当前浏览器的 localStorage / IndexedDB，不上传 GitHub。首次启动为空白记录，默认简体中文，禁用服务器账号、云端同步、示例 AI 和后台推送。
+这是个人、非商业的 openGym 分支。首次启动为空白记录，第一屏默认简体中文。未登录时，记录保存在当前浏览器并保存本机恢复副本；登录后，记录和个人媒体同步到自己的 Supabase 账号，不上传 GitHub。示例 AI 和后台推送仍禁用。注册邮件返回地址及发信限制说明见 [CLOUD_SETUP.md](CLOUD_SETUP.md)。
 
 ## iPhone 使用
 

@@ -4,6 +4,10 @@
 // subscription hook `useLang`.
 
 import { useSyncExternalStore } from 'react'
+import { LOCAL_PAGES } from './demo.js'
+import zhLocale from '../locales/zh.js'
+import zhInstructions from '../instr/zh.js'
+import zhExerciseNames from '../exercise-names/zh.js'
 import {
   LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, DATE_LOCALES, DERIVED_LOCALES, RTL_LANGS,
   getLang, dateLocale, t, tn, instrFor, exerciseNameFor, exerciseNameSearchText, getVersion,
@@ -66,12 +70,12 @@ export async function setLang(l, showEn, enOnly) {
   lastEnOnly = only
   const base = baseLang(l)
   let dict = {}, instr = null, exerciseNames = null
-  try { dict = base === 'en' ? {} : (await localePacks['../locales/' + base + '.js']()).default } catch (e) { dict = {} }
-  try { instr = base === 'en' || !INSTR_LANGS.includes(base) ? null : (await instrPacks['../instr/' + base + '.js']()).default } catch (e) { instr = null }
+  try { dict = base === 'en' ? {} : LOCAL_PAGES && base === 'zh' ? zhLocale : (await localePacks['../locales/' + base + '.js']()).default } catch (e) { dict = {} }
+  try { instr = base === 'en' || !INSTR_LANGS.includes(base) ? null : LOCAL_PAGES && base === 'zh' ? zhInstructions : (await instrPacks['../instr/' + base + '.js']()).default } catch (e) { instr = null }
   try {
     exerciseNames = base === 'en' || !EXERCISE_NAME_LANGS.includes(base)
       ? null
-      : (await exerciseNamePacks['../exercise-names/' + base + '.js']()).default
+      : LOCAL_PAGES && base === 'zh' ? zhExerciseNames : (await exerciseNamePacks['../exercise-names/' + base + '.js']()).default
   } catch (e) { exerciseNames = null }
   _setLangState(l, derivePack(l, dict), derivePack(l, instr), derivePack(l, exerciseNames), show, only)
   if (detailsLoaded) loadDetails()
