@@ -4,6 +4,26 @@ const DEVICE_ID_KEY = 'activet_device_id'
 const DEVICE_NAME_KEY = 'activet_device_name'
 const SYNC_MARK_KEY = 'activet_last_sync'
 const DEFAULT_ENDPOINT = 'https://cloud.bdprk.com/api/cloud/activet'
+const SYNC_TOKEN_KEY = 'activet_cloud_sync_token'
+export function hasCloudPairing() {
+  try { return !!localStorage.getItem(SYNC_TOKEN_KEY) } catch { return false }
+}
+function syncHeaders() {
+  const token = localStorage.getItem(SYNC_TOKEN_KEY)
+  if (!token) throw new Error('请先在设置的「云端配对」中填写同步密钥。本机记录仍然保留。')
+  return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }
+}
+export async function pairCloudDevice(value) {
+  const token = String(value || '').trim()
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) throw new Error('请输入完整的 ActiveT 同步密钥。')
+  const response = await fetch(`${DEFAULT_ENDPOINT}/sync?device=${encodeURIComponent(getDeviceId())}`, {
+    headers: { Authorization: 'Bearer ' + token },
+  })
+  if (!response.ok) throw new Error(response.status === 401 ? '同步密钥不正确，请从私人云端重新复制。' : '暂时无法验证同步密钥，请稍后重试。')
+  localStorage.setItem(SYNC_TOKEN_KEY, token)
+  emit({ pending: true, phase: 'pending', message: '' })
+  if (store) schedule(0)
+}
 
 function detectDeviceDefaultName() {
   if (typeof navigator === 'undefined') return '手机设备'
@@ -97,10 +117,12 @@ export async function setDeviceName(name) {
   try {
     await fetch(`${DEFAULT_ENDPOINT}/rename`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: syncHeaders(),
       body: JSON.stringify({ deviceId: view.deviceId, name: clean, newName: clean }),
+    }).then(async response => {
+      if (!response.ok) throw new Error('设备备注尚未同步，请检查云端配对后重试。')
     })
-  } catch {}
+  } catch (error) { throw error }
 }
 
 export async function startCloudSync(appStore) {
@@ -173,7 +195,7 @@ export async function syncCloudNow() {
       const localState = cloudDocument(store.getState().S)
       const res = await fetch(`${DEFAULT_ENDPOINT}/sync`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: syncHeaders(),
         body: JSON.stringify({
           deviceId,
           deviceName,
@@ -224,7 +246,7 @@ export async function syncCloudNow() {
 
 export async function fetchCloudDeviceState(targetDeviceId) {
   const id = (targetDeviceId || view.deviceId).trim()
-  const res = await fetch(`${DEFAULT_ENDPOINT}/sync?device=${encodeURIComponent(id)}`)
+  const res = await fetch(`${DEFAULT_ENDPOINT}/sync?device=${encodeURIComponent(id)}`, { headers: syncHeaders() })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }

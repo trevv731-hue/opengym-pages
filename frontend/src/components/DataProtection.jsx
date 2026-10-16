@@ -10,6 +10,8 @@ import {
   syncCloudNow,
   setDeviceName,
   cloudError,
+  pairCloudDevice,
+  hasCloudPairing,
 } from '../lib/cloud-sync.js'
 import {
   safetyStatus,
@@ -190,6 +192,8 @@ export function CloudAccountSection() {
   const [working, setWorking] = useState(false)
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState(cloud.deviceName || '')
+  const [pairingInput, setPairingInput] = useState('')
+  const [pairing, setPairing] = useState(!hasCloudPairing())
   const [notice, setNotice] = useState(null)
   const noticeRef = useRef(null)
 
@@ -248,6 +252,18 @@ export function CloudAccountSection() {
     }
   }
 
+  const savePairing = async () => {
+    setWorking(true)
+    try {
+      await pairCloudDevice(pairingInput)
+      setPairingInput('')
+      setPairing(false)
+      setNotice({ kind: 'success', text: '云端配对成功，正在准备自动同步。' })
+    } catch (error) {
+      setNotice({ kind: 'error', text: cloudError(error) })
+    } finally { setWorking(false) }
+  }
+
   return (
     <>
       {notice && (
@@ -263,7 +279,7 @@ export function CloudAccountSection() {
 
       <Section
         title="小云端设备同步"
-        footer="每个手机默认为一个独立用户，无需注册或密码。完成训练或修改计划后会自动同步到个人小云端 (cloud.bdprk.com)。离线修改会在联网后自动上传。"
+        footer="自己的设备配对一次后，训练、计划和体重会自动同步至私人云端。离线修改保留在本机，联网后继续上传。"
       >
         <Row
           icon="cloud"
@@ -283,6 +299,16 @@ export function CloudAccountSection() {
           accessory={working ? null : 'chevron'}
           onClick={runSync}
         />
+      </Section>
+
+      <Section title="云端配对" footer="在已授权电脑的私人云端中打开「ActiveT 设备配对」，复制同步密钥到此处。不要填写私人云端恢复密钥。">
+        <Row icon="lock" title={hasCloudPairing() ? '已保存同步密钥' : '此设备尚未配对'} subtitle="点击填写或更换同步密钥" onClick={() => setPairing(v => !v)} />
+        {pairing && <div style={{ padding: '8px 16px 14px' }}>
+          <label className="data-protection-field">ActiveT 同步密钥
+            <TextField type="password" value={pairingInput} onChange={e => setPairingInput(e.target.value)} autoComplete="off" maxLength={100} />
+          </label>
+          <Button variant="primary" disabled={working || !pairingInput.trim()} onClick={savePairing}>验证并配对</Button>
+        </div>}
       </Section>
 
       <Section title="设备身份与备注" footer="在云端管理后台将按此名称区分你的各台手机/平板。">
