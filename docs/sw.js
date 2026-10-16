@@ -4,7 +4,7 @@
    itself lives in localStorage. `CACHE` carries the build hash (vite.config.js rewrites it), so
    every deploy is a new worker with its own cache and the previous build's files are dropped on
    activate; the media cache (`MEDIA`) is kept across builds. */
-const CACHE = 'opengym-rt-fbf09dafe6'
+const CACHE = 'opengym-rt-5c0d850bcd'
 // Where the page leaves this browser's push device id (lib/push.js shareDeviceId) for the
 // pushsubscriptionchange handler below, which has no localStorage to read it from. Not a build
 // cache, so activate's sweep leaves it alone.
@@ -38,7 +38,7 @@ const isMediaPath = p => p.includes('/exercise-media/') || p.includes('/img/') |
 // The code the app loads only when it needs it (the photo and video ingest, the QR reader...),
 // listed by the build (vite.config.js, scripts/sw-stamp.mjs). Without it the first photo added
 // offline after an update had no ingest to run. Unstamped (a dev server, a test) it is empty.
-const LAZY = "[\"./assets/backup-media-CZpF3vo9.js\",\"./assets/base-BcX2S0e3.js\",\"./assets/body-paths-D_5SR19s.js\",\"./assets/coach-demo-CYxMmM6l.js\",\"./assets/coach-local-_TkaZktG.js\",\"./assets/demoSeed-C76FdGSi.js\",\"./assets/dist-BmXui638.js\",\"./assets/en-BZEO-2l9.js\",\"./assets/en-B_U-spcQ.js\",\"./assets/esm-B8IcWXXl.js\",\"./assets/esm-BFFJlZn4.js\",\"./assets/esm-B_zjaBST.js\",\"./assets/esm-CiD-4aUL.js\",\"./assets/esm-DklXRwCe.js\",\"./assets/esm-QL-HtokE.js\",\"./assets/exercises-BAlCExtY.js\",\"./assets/history-TKlyBZCk.js\",\"./assets/i18n-5y1j7L9Q.js\",\"./assets/index-4PaOvAlY.css\",\"./assets/index-d6ViefIL.js\",\"./assets/jsQR-dbrgLl2D.js\",\"./assets/lean-qr-BHx9WpGV.js\",\"./assets/media-ingest-BiiXLapX.js\",\"./assets/media-refs-CBisMdU5.js\",\"./assets/media-store-fs-D3FqQWlM.js\",\"./assets/mobile-XjsBQeRZ.js\",\"./assets/native-CYRashFh.js\",\"./assets/preload-helper-HclGiUj8.js\",\"./assets/rolldown-runtime-QTnfLwEv.js\",\"./assets/units-CC0_4ZlO.js\",\"./assets/web-B-ehpxV_.js\",\"./assets/web-CglqWE4o.js\",\"./assets/web-D_HIs4xs.js\",\"./assets/web-eWYiFS0J.js\",\"./assets/web-r1kUzCOF.js\",\"./assets/web-zlY757AX.js\"]"
+const LAZY = "[\"./assets/backup-media-CbMURXs5.js\",\"./assets/base-BcX2S0e3.js\",\"./assets/body-paths-D_5SR19s.js\",\"./assets/coach-demo-RGnYp9NQ.js\",\"./assets/coach-local-CG10Fd7q.js\",\"./assets/demoSeed-fyB4M_c-.js\",\"./assets/dist-BmXui638.js\",\"./assets/en-BZEO-2l9.js\",\"./assets/en-B_U-spcQ.js\",\"./assets/esm-B8IcWXXl.js\",\"./assets/esm-BFFJlZn4.js\",\"./assets/esm-B_zjaBST.js\",\"./assets/esm-CiD-4aUL.js\",\"./assets/esm-DklXRwCe.js\",\"./assets/esm-QL-HtokE.js\",\"./assets/exercises-BAlCExtY.js\",\"./assets/history-TKlyBZCk.js\",\"./assets/i18n-5y1j7L9Q.js\",\"./assets/index-4PaOvAlY.css\",\"./assets/index-A3gycnFV.js\",\"./assets/jsQR-dbrgLl2D.js\",\"./assets/lean-qr-BHx9WpGV.js\",\"./assets/media-ingest-BWVkw2WD.js\",\"./assets/media-refs-CBisMdU5.js\",\"./assets/media-store-fs-D3FqQWlM.js\",\"./assets/mobile-XjsBQeRZ.js\",\"./assets/native-CYRashFh.js\",\"./assets/preload-helper-HclGiUj8.js\",\"./assets/rolldown-runtime-QTnfLwEv.js\",\"./assets/units-CC0_4ZlO.js\",\"./assets/web-B-ehpxV_.js\",\"./assets/web-CglqWE4o.js\",\"./assets/web-D_HIs4xs.js\",\"./assets/web-eWYiFS0J.js\",\"./assets/web-r1kUzCOF.js\",\"./assets/web-zlY757AX.js\"]"
 const lazyAssets = () => { try { const a = JSON.parse(LAZY); return Array.isArray(a) ? a : [] } catch { return [] } }
 
 // What the shell needs to boot without a network: index.html plus every script/style/icon it

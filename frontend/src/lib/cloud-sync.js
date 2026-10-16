@@ -98,7 +98,7 @@ export async function setDeviceName(name) {
     await fetch(`${DEFAULT_ENDPOINT}/rename`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceId: view.deviceId, name: clean }),
+      body: JSON.stringify({ deviceId: view.deviceId, name: clean, newName: clean }),
     })
   } catch {}
 }
