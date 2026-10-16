@@ -12,6 +12,7 @@ import { beep, vibrate } from './lib/sound.js'
 import { t, tn, dateLocale, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from './lib/i18n.js'
 import { nav, closeThenNav, navToWorkout } from './lib/nav.js'
 import { buildStarterPlan, starterPlanDays, starterPlanOptions } from './lib/starter.js'
+import {TRAINNOTE} from './lib/demo.js'
 import Media, { Thumb } from './components/Media.jsx'
 import CustomMediaField from './components/CustomMediaField.jsx'
 import WorkoutMediaSection, { workoutMediaCount } from './components/WorkoutMedia.jsx'
@@ -179,6 +180,10 @@ const PLAN_COPY = {
 export function loadStarterPlan(planId, profile) {
   const plan = buildStarterPlan(planId, profile ? profileEquipment(profile) : undefined)
   if (!plan) return false
+  if(TRAINNOTE){
+    const names={'Push Day':'推部训练','Pull Day':'拉部训练','Leg Day':'腿部训练','Upper A':'上肢 A','Upper B':'上肢 B','Lower A':'下肢 A','Lower B':'下肢 B','Full Body A':'全身 A','Full Body B':'全身 B','Full Body C':'全身 C','Workout A':'训练 A','Workout B':'训练 B'}
+    plan.routines.forEach(r=>{r.name=names[r.name]||r.name})
+  }
   update(st => {
     // Loading the same plan again reuses the routines it added last time (same name, same
     // exercises) for the weekdays instead of a second Upper A, Lower A, ... under the same names.

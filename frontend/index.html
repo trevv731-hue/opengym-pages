@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <script>
   // Set direction before first paint so an Arabic profile never flashes as LTR.
   // The app re-applies this on every language change (lib/i18n.js setLang).
@@ -14,13 +14,13 @@
     document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
   } catch (e) {}
 </script>
-<title>ActiveT · 健身记录</title>
-<meta name="description" content="记录训练、计划和体重，支持离线使用、文件备份与小云端同步。">
-<meta name="theme-color" content="#0c0e12">
+<title>训练手记 · 私人健身日记</title>
+<meta name="description" content="记录每一次训练，整理动作、计划与身体变化。">
+<meta name="theme-color" content="#f6f7f5">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ActiveT">
+<meta name="apple-mobile-web-app-title" content="训练手记">
 <!-- use-credentials: browsers fetch the manifest without cookies, even same-origin; behind an auth
      proxy (Authelia, Cloudflare Access, Teleport…) that fetch is a login redirect and the Home Screen
      icon comes out generic. iOS 26 reads the icon from the manifest, so this is where it shows. -->
@@ -29,7 +29,7 @@
 <link rel="icon" type="image/png" href="icon-180.png">
 </head>
 <body>
-<div id="root"><div role="status" style="padding:40vh 20px;text-align:center;background:#000;color:#ddd;font-family:system-ui">正在打开你的健身记录…</div></div>
+<div id="root"><div role="status" style="padding:40vh 20px;text-align:center;background:#f6f7f5;color:#376950;font-family:system-ui">正在打开你的健身记录…</div></div>
 <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

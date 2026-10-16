@@ -21,7 +21,7 @@ import { pushSupported, enablePush, disablePush, sendTestPush, syncPushSubscript
 import { wakeLockSupported } from '../lib/wakelock.js'
 import { t, tn, LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, baseLang, dateLocale } from '../lib/i18n.js'
 import { effectiveLang } from '../lib/default-lang.js'
-import { DEMO, REPO, LOCAL_PAGES } from '../lib/demo.js'
+import { DEMO, REPO, LOCAL_PAGES, TRAINNOTE } from '../lib/demo.js'
 import { MOBILE, isAndroid, shareExport, shareExportBlob, syncReminder } from '../lib/mobile.js'
 import { NUDGE_COPY, NUDGE_TONES, toneOf } from '../lib/nudge.js'
 import { referencedFiles } from '../lib/media-refs.js'
@@ -779,7 +779,7 @@ export default function Settings({ page = null, find = null, via = null }) {
     </>,
 
     data: () => <>
-      {LOCAL_PAGES && <LocalProtectionSection />}
+      {LOCAL_PAGES && !TRAINNOTE && <LocalProtectionSection />}
       <Section title={t('Back up')}>
         <Row icon="share" iconTint="var(--blue)" title={t('Export backup (JSON)')} subtitle={hasMedia ? t('Without photos and videos') : undefined} accessory="chevron" onClick={doExport} />
         {hasMedia && <Row icon="share" iconTint="var(--blue)" title={t('Export with photos & videos (.zip)')} accessory="chevron" onClick={doExportZip} />}
@@ -832,14 +832,14 @@ export default function Settings({ page = null, find = null, via = null }) {
       {!MOBILE && !standalone() && <Section title={t('Tip')}>
         <Row icon="share" iconTint="var(--blue)"
           title={IS_ANDROID ? t('In Chrome: ⋮ menu → Add to Home screen') : t('In Safari: Share → Add to Home Screen')}
-          subtitle={t('to install ActiveT as a full-screen app.') + ' ' + (user ? t('Your data syncs with your profile. Sign in anywhere and it’s there.') : t('Guest data stays on this device, so export a backup now and then!'))} />
+          subtitle={TRAINNOTE ? '添加后可以像 App 一样全屏打开训练手记。' : t('to install ActiveT as a full-screen app.') + ' ' + (user ? t('Your data syncs with your profile. Sign in anywhere and it’s there.') : t('Guest data stays on this device, so export a backup now and then!'))} />
       </Section>}
       {/* The version, where the support template tells people to look for it. On the phone
           build there is no address bar and no about box, so without this there is no way to tell
           which build you are running, or whether an update actually installed. */}
       <div className="dim small sp-version">
-        ActiveT v{__APP_VERSION__} · {t('free & open source (AGPL v3)')}<br />
-        <a href={LOCAL_PAGES ? 'https://github.com/trevv731-hue/opengym-pages' : 'https://github.com/DuarteSantos8/openGym'} target="_blank" rel="noopener">{t('Source code')}</a><br />
+        {TRAINNOTE?'训练手记':'ActiveT'} v{__APP_VERSION__} · {t('free & open source (AGPL v3)')}<br />
+        <a href={TRAINNOTE ? 'https://github.com/trevv731-hue/opengym-pages/tree/trainnote-preview' : LOCAL_PAGES ? 'https://github.com/trevv731-hue/opengym-pages' : 'https://github.com/DuarteSantos8/openGym'} target="_blank" rel="noopener">{t('Source code')}</a><br />
         {/* Attribution the media licence asks for word for word (agreement §8c), so it is not translated */}
         Exercise media © Aliaksandr Makatserchyk, <a href="https://gymvisual.com/" target="_blank" rel="noopener">Gym visual</a>, gymvisual.com.
         Media licensed for use in openGym only; see <a href="https://github.com/DuarteSantos8/openGym/blob/main/NOTICE.md" target="_blank" rel="noopener">NOTICE.md</a>
@@ -1377,7 +1377,7 @@ function MediaRow() {
   const usage = remote && u && u.quotaBytes > 0
     ? t('{0} of {1} MB used on your server', fmtMB((u.bytes || 0) / MB), fmtMB(Math.round(u.quotaBytes / MB)))
     : null
-  const sub = LOCAL_PAGES ? cloud.user ? `${cloudLabel(cloud)}。个人照片视频随账号同步；建议另外导出带媒体的备份。` : '照片视频保存在本机；登录后随账号同步。带媒体的 ZIP 备份可保存完整副本。' : remote
+  const sub = TRAINNOTE ? '照片视频保存在当前设备。导出带媒体的 ZIP 备份可保存完整副本。' : LOCAL_PAGES ? cloud.user ? `${cloudLabel(cloud)}。个人照片视频随账号同步；建议另外导出带媒体的备份。` : '照片视频保存在本机；登录后随账号同步。带媒体的 ZIP 备份可保存完整副本。' : remote
     ? [usage, pending ? t('{0} waiting to upload', pending) : null].filter(Boolean).join(' · ') || undefined
     : t('Kept on this device only. Export with photos & videos keeps a copy.')
   return <Row icon="image" iconTint="var(--teal)" title={t('Photos & videos')} subtitle={sub}

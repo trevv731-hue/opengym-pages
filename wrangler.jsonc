@@ -1,0 +1,9 @@
+{
+  "name": "bdprk-gym-preview",
+  "main": "server/worker.js",
+  "compatibility_date": "2026-10-16",
+  "workers_dev": false,
+  "assets": {"directory":"frontend/dist","binding":"ASSETS","run_worker_first":true},
+  "d1_databases": [{"binding":"JOURNAL_DB","database_name":"bdprk-gym-preview","database_id":"f9e5b1c5-1982-45eb-8e90-45adce22d3b1"}],
+  "observability": {"enabled":true,"head_sampling_rate":1}
+}

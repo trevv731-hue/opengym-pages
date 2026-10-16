@@ -7,5 +7,9 @@ upstream-tree.json
 .qa-build.log
 *.zip
 .env
+.dev.vars*
+.wrangler/
+.journal-build/
+.qa-*
 data/
 supabase/.temp/

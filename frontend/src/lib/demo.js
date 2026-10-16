@@ -12,6 +12,7 @@
 // Reuse the static build's no-server gates for the personal Pages edition.
 // LOCAL_PAGES starts empty and never enables the canned demo coach.
 export const LOCAL_PAGES = import.meta.env.VITE_LOCAL_PAGES === '1'
+export const TRAINNOTE = import.meta.env.VITE_TRAINNOTE === '1'
 export const DEMO = LOCAL_PAGES || import.meta.env.VITE_DEMO === '1'
 export const DEMO_SEEDED = 'gym_demo_seeded_v1'
 export const REPO = 'https://gitlab.com/DuarteSantos8/opengym'

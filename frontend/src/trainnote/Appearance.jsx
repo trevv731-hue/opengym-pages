@@ -1,0 +1,4 @@
+import {useNavigate} from 'react-router-dom'
+import {useStore} from '../store/useStore.js'
+import Icon from '../components/Icon.jsx'
+export default function Appearance(){const nav=useNavigate(),S=useStore(s=>s.S),update=useStore(s=>s.update);return <div className="tn-personal"><header className="tn-heading"><div><button className="tn-text" onClick={()=>nav('/me')}><Icon name="chevronLeft"/>我的</button><h1>外观</h1></div><Icon name="palette"/></header><section className="tn-setting-group"><h2>显示模式</h2><div>{[['light','浅色','清晰、轻盈的日间界面'],['dark','深色','适合光线较暗的训练环境'],['system','跟随系统','根据设备的显示模式自动切换']].map(([value,name,description])=><button key={value} aria-pressed={S.theme===value} onClick={()=>update(s=>{s.theme=value})}><span className="tn-setting-icon"><Icon name={value==='dark'?'moon':value==='light'?'sun':'phoneScreen'}/></span><span><strong>{name}</strong><small>{description}</small></span>{S.theme===value&&<Icon name="check"/>}</button>)}</div></section></div>}

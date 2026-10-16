@@ -3,7 +3,7 @@ import { api, setRemoteAuth } from '../lib/api.js'
 import { localTZ } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import { registerCustom, healCustomEx } from '../lib/exercises.js'
-import { DEMO, DEMO_SEEDED, LOCAL_PAGES } from '../lib/demo.js'
+import { DEMO, DEMO_SEEDED, LOCAL_PAGES, TRAINNOTE } from '../lib/demo.js'
 import { rememberDefaultLang } from '../lib/default-lang.js'
 import { guestAllowed } from '../lib/guest.js'
 import { MOBILE, initReminderSync, nativeLoad, nativeSave, onAppActive, readJsonFile, syncReminder, writeAutoBackup, writeJsonFile } from '../lib/mobile.js'
@@ -86,7 +86,7 @@ const gainedWorkoutMedia = (prev, next) => {
 }
 export const DEF = {
   unit: 'kg', restSec: 90, restPauseSec: 15, sound: true, soundOnSilent: false, vibrateOnSilent: false, timerFlash: false, timedSetOvertime: false, keepAwake: true, lang: LOCAL_PAGES ? 'zh' : 'en',
-  theme: 'dark', accent: 'lime', body: 'male', targetW: null,
+  theme: TRAINNOTE ? 'light' : 'dark', accent: 'lime', body: 'male', targetW: null,
   bodyweight: [], routines: [], week: {}, dayPlan: {},
   // A note per day off (#261): { [iso]: { tag, text, _ts } } (lib/day-notes.js). A noted day is
   // excused from the missed-day nudge; each day merges on its own stamp (lib/sync-merge.js).
@@ -112,7 +112,7 @@ export const DEF = {
   // presentational: profiles written before this setting existed overlay onto DEF and keep the
   // 'cards' behaviour. beginWorkout copies the value onto s.active, so the header ⋮ menu can
   // override it for the running session without touching this saved default.
-  workoutView: 'cards',
+  workoutView: TRAINNOTE ? 'list' : 'cards',
   // List and Compact fold a finished exercise into one line (Settings → Workout; #241). The
   // workout's Layout menu can flip it for the running session (s.active.collapseCompleted).
   collapseCompleted: false,
@@ -221,7 +221,7 @@ export const DEF = {
   // Per-language choice for translated exercise names: whether the original English name is
   // shown in parentheses next to the translation. Map { '<lang>': boolean }; a missing key
   // (any profile written before this setting existed) reads as shown.
-  enParens: {},
+  enParens: TRAINNOTE ? {zh:false} : {},
   // Per-language choice for translated exercise names: whether the translation is replaced
   // entirely by the original English name. Independent of enParens and keyed by the same base
   // language, so e.g. Italian can keep its parens while German pins names to English. Map

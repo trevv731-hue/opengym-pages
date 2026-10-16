@@ -30,6 +30,12 @@ import { openDeviceLinkRedeem } from './components/Passkeys.jsx'
 import Login from './views/Login.jsx'
 import MobileOnboarding from './views/MobileOnboarding.jsx'
 import Home from './views/Home.jsx'
+import {TRAINNOTE} from './lib/demo.js'
+import TrainingHome from './trainnote/TrainingHome.jsx'
+import TrainingHistory from './trainnote/TrainingHistory.jsx'
+import Personal from './trainnote/Personal.jsx'
+import Navigation from './trainnote/Navigation.jsx'
+import Appearance from './trainnote/Appearance.jsx'
 import CheckIn from './views/CheckIn.jsx'
 import Plan from './views/Plan.jsx'
 import RoutineEdit from './views/RoutineEdit.jsx'
@@ -204,7 +210,8 @@ function Shell() {
         <ErrorBoundary>
           {!authed ? <Login /> : needsMobileOnboarding ? <MobileOnboarding /> : (
             <Routes>
-              <Route path="/home" element={<Home />} />
+              <Route path="/home" element={TRAINNOTE?<TrainingHome />:<Home />} />
+              <Route path="/me" element={<Personal />} />
               {/* Gym check-in — switched off in Settings, the route falls through to the
                   catch-all redirect below. */}
               {S.checkIn !== false && <Route path="/checkin" element={<CheckIn />} />}
@@ -212,13 +219,15 @@ function Shell() {
               <Route path="/plan/r/:id" element={<RoutineEdit />} />
               <Route path="/workout" element={<Workout />} />
               <Route path="/stats" element={<Stats />} />
-              <Route path="/history" element={<History />} />
+              <Route path="/history" element={TRAINNOTE?<TrainingHistory />:<History />} />
               <Route path="/library" element={<Library />} />
               <Route path="/muscles" element={<Muscles />} />
               <Route path="/structural-balance" element={<StructuralBalance />} />
               <Route path="/progress-photos" element={<ProgressPhotos />} />
               <Route path="/measurements" element={<Measurements />} />
-              <Route path="/settings" element={<SettingsRoute />} />
+              <Route path="/settings" element={TRAINNOTE?<Navigate to="/me" replace/>:<SettingsRoute />} />
+              <Route path="/settings/account" element={TRAINNOTE?<Navigate to="/me" replace/>:<SettingsRoute />} />
+              <Route path="/settings/look" element={TRAINNOTE?<Appearance/>:<SettingsRoute />} />
               <Route path="/settings/:page" element={<SettingsRoute />} />
               {/* The Coach screens gate themselves on the instance config; the routes exist
                   unconditionally so a deep link from a notification lands somewhere sane
@@ -236,8 +245,8 @@ function Shell() {
       {/* Outside #app: the view's fade-in animates a transform, and a fixed element inside it
           would ride along with the page for the length of it. Decides for itself when to show —
           including on the sign-in screen, when the server has just ended the session. */}
-      <SyncBanner />
-      {!noTabs && <TabBar onStart={startFlow} />}
+      {!TRAINNOTE && <SyncBanner />}
+      {!noTabs && (TRAINNOTE?<Navigation />:<TabBar onStart={startFlow} />)}
       <RestTimer />
       <Modals />
       <Toast />

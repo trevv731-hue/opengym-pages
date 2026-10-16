@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import { MOBILE } from './lib/mobile.js'
 import { useStore } from './store/useStore.js'
-import { LOCAL_PAGES } from './lib/demo.js'
+import { LOCAL_PAGES, TRAINNOTE } from './lib/demo.js'
+import {startJournalSync} from './trainnote/sync.js'
 import { setLang, baseLang } from './lib/i18n.js'
 import { effectiveLang } from './lib/default-lang.js'
 import { recoverPrimaryRecord, startLocalSafety } from './lib/data-safety.js'
@@ -27,7 +28,10 @@ async function mountApp() {
     // Supabase email callbacks use the hash too. Consume their credentials
     // before HashRouter can replace an unrecognised route with /home.
     const authReturn = /(?:^#|&)access_token=|(?:^#|&)error=/.test(location.hash) || new URLSearchParams(location.search).has('code')
-    if (authReturn) {
+    if (TRAINNOTE) {
+      await import('./trainnote/trainnote.css')
+      startJournalSync(useStore)
+    } else if (authReturn) {
       await startCloudSync(useStore)
       location.hash = '/settings/account'
     } else startCloudSync(useStore)
