@@ -47,39 +47,7 @@ export const cloudLabel = cloud =>
   }[cloud.phase] || '小云端已就绪')
 
 export function DataProtectionHome() {
-  const S = useStore(s => s.S)
-  const cloud = useCloudStatus()
-  const safety = useSafetyStatus()
-  const nav = useNavigate()
-  const due = backupDue(S, Date.now(), safety)
-  const attention = cloud.phase === 'error'
-
-  if (!due && !safety.restored && !attention) return null
-
-  return (
-    <div className="card data-protection-card">
-      <div className="data-protection-title">
-        {safety.restored
-          ? '已从本机副本恢复记录'
-          : attention
-          ? '小云端同步需要处理'
-          : '给训练记录留一份备份'}
-      </div>
-      <p>
-        {attention
-          ? cloud.message || cloudLabel(cloud)
-          : '训练数据已开启小云端自动同步。清除网站数据前，建议在设置中导出文件备份。'}
-      </p>
-      <div className="data-protection-actions">
-        <Button variant="tinted" onClick={() => nav('/settings/data')}>
-          备份与恢复
-        </Button>
-        <Button variant="ghost" onClick={() => nav('/settings/account')}>
-          设备与云端
-        </Button>
-      </div>
-    </div>
-  )
+  return null
 }
 
 export function LocalProtectionSection() {
