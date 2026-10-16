@@ -31,3 +31,13 @@ test('拒绝不完整记录和异常版本，失败不创建记录',async()=>{
   assert.equal((await profileApi(request({...base,comment:'a'.repeat(4*1024*1024)}),env)).status,400)
   assert.equal((await (await profileApi(new Request('https://gym.bdprk.com/api/profile'),env)).json()).revision,0)
 })
+
+test('公开页面和静态资源无需证书，私人接口仍要求授权',async()=>{
+  const env=environment();env.ASSETS={fetch:async()=>new Response('public app',{headers:{'content-type':'text/html'}})}
+  for(const path of ['/','/assets/app.js','/manifest.json','/sw.js']){
+    const response=await worker.fetch(new Request('https://gym.bdprk.com'+path),env)
+    assert.equal(response.status,200);assert.equal(await response.text(),'public app')
+  }
+  assert.equal((await worker.fetch(new Request('https://gym.bdprk.com/api/profile'),env)).status,401)
+  assert.equal((await worker.fetch(request(),env)).status,401)
+})

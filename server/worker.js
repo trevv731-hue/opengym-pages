@@ -32,8 +32,8 @@ export default {
     const local=env.LOCAL_PREVIEW==='1'&&['localhost','127.0.0.1'].includes(url.hostname)
     if(!local&&url.hostname!=='gym.bdprk.com')return new Response('Not found',{status:404})
     if(url.pathname.startsWith('/auth/'))return ownerAuthRoute(request,env)
-    if(!local&&!await ownerAuthorized(request,env))return ownerDenied(request)
     if(url.pathname.startsWith('/api/')){
+      if(!local&&!await ownerAuthorized(request,env))return ownerDenied(request)
       if(!local&&!safeBrowserMutation(request))return json({error:'Forbidden'},403)
       if(url.pathname!=='/api/profile')return json({error:'Not found'},404)
       try{return await profileApi(request,env)}catch{return json({error:'暂时无法保存，当前设备记录仍然保留'},503)}

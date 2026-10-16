@@ -2,7 +2,7 @@ import {cloudDocument,mergeCloudProfile,sameDocument,writeCloudProfile} from '..
 // One isolated preview profile. The endpoint authenticates the owner's device/session.
 // No old-site token, database or record is read. Normal success stays out of the UI.
 export function startJournalSync(store){
-  let busy=false,again=false,applying=false,started=false,timer=null,stopped=false
+  let busy=false,again=false,applying=false,started=false,timer=null,stopped=false,guest=false
   const apply=remote=>{
     const current=store.getState().S,merged=mergeCloudProfile(current,remote)
     if(sameDocument(current,merged))return
@@ -11,14 +11,14 @@ export function startJournalSync(store){
   }
   const request=async(method,data)=>{
     const response=await fetch('/api/profile',{method,credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},...(data?{body:JSON.stringify(data)}:{})})
-    if(response.status===401){if(document.visibilityState==='visible')location.assign('/auth/login');throw Error('需要重新验证设备')}
+    if(response.status===401)throw Object.assign(Error('当前浏览器使用本机记录'),{status:401})
     if(response.status!==409&&!response.ok)throw Error('记录暂未送达，本机副本已保留')
     const json=await response.json()
     return {...json,conflict:response.status===409}
   }
   const schedule=(delay=1600)=>{clearTimeout(timer);timer=setTimeout(run,delay)}
   const run=async()=>{
-    if(stopped||!store.getState().ready||navigator.onLine===false)return
+    if(stopped||guest||!store.getState().ready||navigator.onLine===false)return
     if(busy){again=true;return}
     busy=true;again=false
     try{
@@ -31,17 +31,18 @@ export function startJournalSync(store){
       }
       localStorage.setItem('journal_saved_at',String(Date.now()))
       document.documentElement.removeAttribute('data-save-pending')
-    }catch{
+    }catch(error){
       // Local persistence and recovery copies remain authoritative until acknowledged.
       document.documentElement.dataset.savePending='true'
-      if(!stopped)schedule(15000)
+      if(error.status===401){guest=true;document.documentElement.removeAttribute('data-save-pending')}
+      else if(!stopped)schedule(15000)
     }finally{busy=false;if(again&&!stopped)schedule()}
   }
   const unsub=store.subscribe((next,previous)=>{
     if(!started&&next.ready){started=true;schedule(100)}
     if(!applying&&next.ready&&next.S!==previous.S&&!sameDocument(next.S,previous.S))schedule()
   })
-  const focus=()=>schedule(150)
+  const focus=()=>{guest=false;schedule(150)}
   window.addEventListener('online',focus);window.addEventListener('focus',focus)
   const poll=setInterval(()=>{if(document.visibilityState==='visible')schedule(0)},60000)
   if(store.getState().ready){started=true;schedule(100)}
