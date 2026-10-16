@@ -1,89 +1,48 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <title>ActiveT · 系统维护中</title>
-  <meta name="theme-color" content="#0c0e12">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #0c0e12;
-      color: #e5e5e7;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-      text-align: center;
-    }
-    .card {
-      background: #17191e;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      max-width: 420px;
-      width: 100%;
-      padding: 44px 28px 36px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 149, 0, 0.15);
-      color: #ff9f0a;
-      border: 1px solid rgba(255, 149, 0, 0.3);
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ff9f0a;
-      box-shadow: 0 0 8px #ff9f0a;
-      animation: pulse 1.8s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-    h1 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
-      color: #ffffff;
-    }
-    p {
-      color: #8e8e93;
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-    .footer {
-      font-size: 12px;
-      color: #636366;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      padding-top: 18px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<script>
+  // Set direction before first paint so an Arabic profile never flashes as LTR.
+  // The app re-applies this on every language change (lib/i18n.js setLang).
+  // i18n-core RTL_LANGS is the runtime source of truth — keep this list in sync.
+  try {
+    var s = JSON.parse(localStorage.getItem('gym_state_v1') || '{}');
+    var l = s.lang && s.langAuto !== true ? s.lang : 'zh';
+    document.documentElement.lang = l;
+    document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+  } catch (e) {}
+</script>
+<title>ActiveT · 健身记录</title>
+<meta name="description" content="记录训练、计划和体重，支持离线使用、文件备份与小云端同步。">
+<meta name="theme-color" content="#0c0e12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ActiveT">
+<!-- use-credentials: browsers fetch the manifest without cookies, even same-origin; behind an auth
+     proxy (Authelia, Cloudflare Access, Teleport…) that fetch is a login redirect and the Home Screen
+     icon comes out generic. iOS 26 reads the icon from the manifest, so this is where it shows. -->
+<link rel="manifest" href="manifest.json" crossorigin="use-credentials">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+  <script type="module" crossorigin src="./assets/index-BXTZ84bK.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/rolldown-runtime-QTnfLwEv.js">
+  <link rel="modulepreload" crossorigin href="./assets/preload-helper-HclGiUj8.js">
+  <link rel="modulepreload" crossorigin href="./assets/exercises-BAlCExtY.js">
+  <link rel="modulepreload" crossorigin href="./assets/zh-CZqTUHB0.js">
+  <link rel="modulepreload" crossorigin href="./assets/zh-BKenepjX.js">
+  <link rel="modulepreload" crossorigin href="./assets/zh-FnnQpXPK.js">
+  <link rel="modulepreload" crossorigin href="./assets/i18n-5y1j7L9Q.js">
+  <link rel="modulepreload" crossorigin href="./assets/history-TKlyBZCk.js">
+  <link rel="modulepreload" crossorigin href="./assets/mobile-XjsBQeRZ.js">
+  <link rel="modulepreload" crossorigin href="./assets/units-CC0_4ZlO.js">
+  <link rel="modulepreload" crossorigin href="./assets/media-refs-CBisMdU5.js">
+  <link rel="modulepreload" crossorigin href="./assets/media-store-fs-D3FqQWlM.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-4PaOvAlY.css">
 </head>
 <body>
-  <div class="card">
-    <div class="badge">
-      <span class="dot"></span>
-      <span>封闭测试中</span>
-    </div>
-    <h1>系统维护中</h1>
-    <p>ActiveT 目前正在进行内部封闭测试与功能调整，公共访问暂时关闭。感谢您的理解与耐心等待。</p>
-    <div class="footer">
-      ActiveT · 私人数据空间
-    </div>
-  </div>
+<div id="root"><div role="status" style="padding:40vh 20px;text-align:center;background:#000;color:#ddd;font-family:system-ui">正在打开你的健身记录…</div></div>
 </body>
 </html>
